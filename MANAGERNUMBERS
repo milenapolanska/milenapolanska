@@ -1,14 +1,24 @@
- [Test]
+using ConsoleTestApplication;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyTestProject
+{
+    class NumberManagerTests
+    {
+        [Test]
         public void CreateNumber()
+
         {
             var manager = new NumbersManager();
             Assert.IsInstanceOf(typeof(NumbersManager), manager);
         }
-          
-
-     
- [Test]
-      public void SortingAscendingNumbers()
+        
+        [Test]
+        public void SortingAscendingNumbers()
         {
             //Act
             var manager = new NumbersManager();
@@ -18,7 +28,7 @@
             list.Add(7);
             list.Add(3);
             list.Add(5);
-            
+
             //Arrange
             var actual = manager.SortNumbers(list, true);
             var expect = new List<int>() { 1, 3, 5, 7 };
@@ -26,3 +36,134 @@
             //Assert
             Assert.AreEqual(actual, expect);
         }
+
+        [Test]
+        public void SortingDescendingNumbers()
+        {
+            //Act
+            var manager = new NumbersManager();
+            var list = new List<int>();
+
+            list.Add(1);
+            list.Add(7);
+            list.Add(3);
+            list.Add(5);
+
+            //Arrange
+            var actual = manager.SortNumbers(list, false);
+            var expect = new List<int>() { 7,5,3,1 };
+
+            //Assert
+            Assert.AreEqual(actual, expect);
+        }
+
+        [Test]
+        public void ListWithZeroAscending()
+        {
+            //Act
+            var manager = new NumbersManager();
+            var list = new List<int>();
+
+            list.Add(0);
+            list.Add(7);
+            list.Add(3);
+            list.Add(5);
+
+            //Assert
+            Assert.Throws<Exception>(() => manager.SortNumbers(list, true));
+        }
+
+        [Test]
+        public void ListWithZeroDescending()
+        {
+            //Act
+            var manager = new NumbersManager();
+            var list = new List<int>();
+
+            list.Add(0);
+            list.Add(7);
+            list.Add(3);
+            list.Add(5);
+
+            //Assert
+            Assert.Throws<Exception>(() => manager.SortNumbers(list, false));
+        }
+
+        [Test]
+        public void ListWithNegativeNumberAsc()
+        {
+            //Act
+            var manager = new NumbersManager();
+            var list = new List<int>();
+
+            list.Add(-1);
+            list.Add(7);
+            list.Add(3);
+            list.Add(5);
+
+            //Assert
+            Assert.Throws<Exception>(() => manager.SortNumbers(list, true));
+        }
+
+
+        [Test]
+        public void ListWithNegativeNumberADesc()
+        {
+            //Act
+            var manager = new NumbersManager();
+            var list = new List<int>();
+
+            list.Add(-1);
+            list.Add(7);
+            list.Add(3);
+            list.Add(5);
+
+            //Assert
+            Assert.Throws<Exception>(() => manager.SortNumbers(list, false));
+        }
+
+        [Test] 
+        public void CreateQuantityNumbers()
+        {
+            //Act
+            var quntity = new QuantityNumbers(1,3);
+
+            //Assret
+            Assert.IsTrue(quntity.QuantityPrimeNumbers == 1 && quntity.QuantityNotPrimeNumbers == 3);
+        }
+
+        [Test]
+        public void CreatePrimeNumber()
+        {
+            //Act
+            var mock = new Mock<INumbersManager>();
+
+            var list = new List<int>();
+            var quantity = new QuantityNumbers(1, 3);
+            var prime = new PrimeNumber(mock.Object, list, true, quantity);
+
+            //Assert 
+            Assert.IsTrue(prime.Ascending == true && prime.Numbers == list && prime.QuantityPrimeNumbers == quantity && prime._numbersManager == mock.Object);
+
+        }
+        [Test]
+        public void SumNumbersPrimeAndNotPrime()
+        {  //Act 
+            var mock = new Mock<INumbersManager>();
+            var list = new List<int>() { 1,5,2,9};
+
+            mock.Setup(m => m.SortNumbers(list, true)).Returns(new List<int> {1,2,5,9});
+            var quantity = new QuantityNumbers(0,0);
+
+            var prime = new PrimeNumber(mock.Object, list, true, quantity);
+            //Arrange
+            var actual = prime.CountNumbers();
+
+            var expect = new QuantityNumbers(2, 2);
+
+            //Assert
+            Assert.IsTrue(actual.QuantityPrimeNumbers == expect.QuantityPrimeNumbers && actual.QuantityNotPrimeNumbers == expect.QuantityNotPrimeNumbers);
+
+        }
+    }
+}
