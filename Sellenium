@@ -1,0 +1,221 @@
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Text;
+using System.Xml.Serialization;
+
+namespace KursSelenium.EXCERCISES
+{
+    class logowanie_zadanie
+    {
+        IWebDriver driver;
+        WebDriverWait wait;
+
+        [SetUp]
+
+        public void Setup()
+        {
+            driver = new ChromeDriver();
+            driver.Manage().Window.Position = new System.Drawing.Point(8, 30);
+            driver.Manage().Window.Size = new System.Drawing.Size(1290, 730);
+
+            driver.Manage().Timeouts().ImplicitWait = System.TimeSpan.FromSeconds(5); 
+            driver.Manage().Timeouts().PageLoad = System.TimeSpan.FromSeconds(10); 
+            driver.Navigate().GoToUrl("https://fakestore.testelka.pl/moje-konto/ ");
+           driver.FindElement(By.CssSelector(".woocommerce-store-notice__dismiss-link")).Click();
+        
+        }
+
+        
+
+
+        [Test]
+        public void CorrectLoginWithEmail()
+        {
+
+            string email = "mil.polanska@gmail.com";
+            string password = "Milena878%%";
+
+
+            driver.FindElement(By.CssSelector("input[id='username']")).SendKeys(email);
+            driver.FindElement(By.CssSelector("input[id='password']")).SendKeys(password);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+            string myAccountContent = driver.FindElement(By.CssSelector("div.woocommerce-MyAccount-content>p:first-of-type")).Text;
+            string userDisplayName = "mil.polanska";
+
+            Assert.IsTrue(myAccountContent.Contains(userDisplayName), "My account is not my account");
+        }
+
+        [Test]
+        public void CorrectLoginWithLogin()
+        {
+
+            string email = "mil.polanska";
+            string password = "Milena878%%";
+
+
+            driver.FindElement(By.CssSelector("input[id='username']")).SendKeys(email);
+            driver.FindElement(By.CssSelector("input[id='password']")).SendKeys(password);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+            string myAccountContent = driver.FindElement(By.CssSelector("div.woocommerce-MyAccount-content>p:first-of-type")).Text;
+            string userDisplayName = "mil.polanska";
+
+            Assert.IsTrue(myAccountContent.Contains(userDisplayName), "My account is not my account");
+        }
+
+        [Test]
+        public void FailedLoginNoUsername()
+        {
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+            string errorMessageText = driver.FindElement(By.CssSelector("ul.woocommerce-error")).Text;
+            string expectedMessage = "Błąd: Nazwa użytkownika jest wymagana.";
+            Assert.AreEqual(expectedMessage, errorMessageText, "Error message is not correct.");
+        }
+
+        [Test]
+        public void FailedLoginNoPassword()
+        {
+            string userName = "mil.polanska";
+            driver.FindElement(By.CssSelector("input[id = 'username']")).SendKeys(userName);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+
+            string errorMessage = driver.FindElement(By.CssSelector("ul.woocommerce-error")).Text;
+            string expectedMessage = "Błąd: Hasło jest puste.";
+
+            Assert.AreEqual(errorMessage, expectedMessage, "no no no");
+        }
+
+        [Test]
+        public void FailedLoginNoExistentUser()
+        {
+            string userName = "mil.polanska2";
+            string password = "Milena878 %%";
+            driver.FindElement(By.CssSelector("input[id = 'username']")).SendKeys(userName);
+            driver.FindElement(By.CssSelector("input[id='password']")).SendKeys(password);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+
+            string errorMessage = driver.FindElement(By.CssSelector("ul.woocommerce-error")).Text;
+            string expectedMessage = "Nieznany użytkownik. Proszę spróbować ponownie lub użyć adresu email.";
+
+            Assert.AreEqual(errorMessage, expectedMessage, "no no no");
+        }
+
+        [Test]
+        public void FailedLoginNoExistentEmail()
+        {
+            string username = "mil.polanska@gmail.com2";
+            string password = "Milena878 %%";
+            driver.FindElement(By.CssSelector("input[id = 'username']")).SendKeys(username);
+            driver.FindElement(By.CssSelector("input[id='password']")).SendKeys(password);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+
+            string errorMessage = driver.FindElement(By.CssSelector("ul.woocommerce-error")).Text;
+            string expectedMessage = "Nieznany adres email. Proszę sprawdzić ponownie lub wypróbować swoją nazwę użytkownika.";
+
+            Assert.AreEqual(errorMessage, expectedMessage);
+        }
+
+        [Test]
+        public void FailedLoginWrongPasswordForUsername()
+        {
+            string username = "mil.polanska";
+            string password = "Milena878%%2";
+            driver.FindElement(By.CssSelector("input[id = 'username']")).SendKeys(username);
+            driver.FindElement(By.CssSelector("input[id='password']")).SendKeys(password);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+
+            string errorMessage = driver.FindElement(By.CssSelector("ul.woocommerce-error")).Text;
+            string expectedMessage = "Błąd: Wprowadzone hasło dla użytkownika " + username + " jest niepoprawne. Nie pamiętasz hasła?";
+
+            Assert.AreEqual(errorMessage, expectedMessage);
+        }
+
+        [Test]
+        public void FailedLoginWrongPasswordForEmail()
+        {
+            string email = "mil.polanska@gmail.com";
+            string password = "Milena878%%2";
+            driver.FindElement(By.CssSelector("input[id = 'username']")).SendKeys(email);
+            driver.FindElement(By.CssSelector("input[id='password']")).SendKeys(password);
+            driver.FindElement(By.CssSelector("button[name='login']")).Click();
+
+            string errorMessage = driver.FindElement(By.CssSelector("ul.woocommerce-error")).Text;
+            string expectedMessage = "BŁĄD: Dla adresu email " + email + " podano nieprawidłowe hasło. Nie pamiętasz hasła?";
+
+            Assert.AreEqual(errorMessage, expectedMessage);
+        }
+
+
+        [Test]
+        public void ExplicitWait()
+        {
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+            driver.FindElement(By.CssSelector("[name = 'add-to-cart']")).Click();
+            driver.FindElement(By.CssSelector(".woocommerce-message .wc-forward")).Click();
+        
+
+            IWebElement quantityField = wait.Until(driver => driver.FindElement(By.CssSelector("[id ^= 'quantity']")));
+
+            quantityField.Clear();
+            quantityField.SendKeys("2");
+            driver.FindElement(By.CssSelector("[name='update_cart']")).Click();
+
+            wait.Until(driver => driver.FindElements(By.CssSelector(".blockUI")).Count == 0);
+
+           var actual = driver.FindElement(By.CssSelector(".order-total .amount")).Text;
+           var expect = "6 400,00 zł";
+            Assert.AreEqual(actual, expect, "nie dziala");
+
+        }
+
+        [Test]
+
+        public void GetLoaclizationSizeAndTagNameTest()
+
+        {
+            driver.Navigate().GoToUrl("https://fakestore.testelka.pl/");
+            driver.FindElement(By.CssSelector(".woocommerce-store-notice__dismiss-link")).Click();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            
+
+            IWebElement windsurfingImage = wait.Until(driver => driver.FindElement(By.CssSelector("[alt='Wspinaczka']")));
+                Point location = windsurfingImage.Location;
+                //Size size = windsurfingImage.Size;
+                //string tagName = windsurfingImage.TagName;
+            
+        }
+
+        [Test]
+        public void Getocalization()
+        {
+            driver.Navigate().GoToUrl("https://fakestore.testelka.pl/");
+            driver.FindElement(By.CssSelector(".woocommerce-store-notice__dismiss-link")).Click();
+            wait = new WebDriverWait(driver,TimeSpan.FromSeconds(5));
+            IWebElement wspinaczkaImage = wait.Until(driver=>driver.FindElement(By.CssSelector("[alt='Wspinaczka']")));
+            Point location = wspinaczkaImage.Location;
+            Size size = wspinaczkaImage.Size;
+            string tagname = wspinaczkaImage.TagName;
+        }
+
+        [Test]
+        public void Displayed()
+        {
+            driver.Navigate().GoToUrl("https://fakestore.testelka.pl/");
+
+
+
+        }
+
+        [TearDown]
+        public void QuitDriver()
+        {
+            driver.Quit();
+        }
+
+    }
+}
