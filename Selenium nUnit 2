@@ -1,0 +1,50 @@
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using System.Threading;
+
+namespace MilenaTestyPortoflio
+{
+    public class OnetTests
+
+    {
+        IWebDriver driver;
+
+        [SetUp]
+        public void OpenWebsite()
+        {
+            driver = new ChromeDriver();
+            driver.Url = "https://www.onet.pl/poczta?state=https%3A%2F%2Fpoczta.onet.pl%2F&client_id=poczta.onet.pl.front.onetapi.pl";
+            Assert.IsTrue(driver.WindowHandles.Count == 1);
+
+        }
+
+        [Test]
+        public void LoginToMail()
+        {
+            Thread.Sleep(5000);
+
+            var login = driver.FindElement(By.Id("mailFormLogin"));
+            login.Clear();
+            login.SendKeys("milena.kontotestowe@op.pl");
+
+
+            var password = driver.FindElement(By.Id("mailFormPassword"));
+            password.Clear();
+            password.SendKeys("Haslotestowe1@");
+
+            var przyciskZaloguj = driver.FindElement(By.XPath("/html/body/div[3]/div[1]/div/div/form/div[3]/input"));
+            przyciskZaloguj.Click();
+
+            var info = driver.FindElement(By.XPath("/html/body/main/div/header/nav/div/div/button/span/span"));
+            Assert.IsTrue(info.Text.Contains("milena.kontotestowe@op.pl"))
+        }
+
+        [TearDown]
+        public void CloseWindow()
+        {
+            driver.Close();
+
+        }
+    }
+}
