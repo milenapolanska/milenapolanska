@@ -1,0 +1,228 @@
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+
+
+namespace EndToEndAppliction
+{
+    public class Tests
+    {
+        IWebDriver driver;
+        [SetUp]
+        public void Initilaize()
+        {
+            driver = new ChromeDriver();
+            driver.Url = "https://lamp.ii.us.edu.pl/~mtdyd/zawody/";
+            Assert.IsTrue(driver.WindowHandles.Count == 1);
+        }
+        #region Adult
+
+        [Test]
+        public void CheckAddToAdultToMinimumAge()
+        {
+            var firstName = driver.FindElement(By.Id("inputEmail3"));
+
+            firstName.Clear();
+            firstName.SendKeys("Milena");
+
+            var lastName = driver.FindElement(By.Id("inputPassword3"));
+
+            lastName.Clear();
+            lastName.SendKeys("Polanska");
+
+            var dateOfBirth = driver.FindElement(By.Id("dataU"));
+
+            dateOfBirth.Clear();
+            dateOfBirth.SendKeys("02-11-2002");
+
+            var button = driver.FindElement(By.XPath("/html/body/div/div/div/div/form/div[6]/div/button"));
+            button.Click();
+
+            driver.SwitchTo().Alert().Accept();
+            driver.SwitchTo().Alert().Accept();
+
+            var info = driver.FindElement(By.Id("returnSt"));
+
+            Assert.IsTrue(info.Text.Contains("Dorosly"));
+
+
+
+            Assert.Pass();
+        }
+
+        #endregion 
+
+        [Test]
+        public void CheckAddToSeniorToMinimumAge()
+        {
+            var firstName = driver.FindElement(By.Id("inputEmail3"));
+
+            firstName.Clear();
+            firstName.SendKeys("Milena");
+
+            var lastName = driver.FindElement(By.Id("inputPassword3"));
+
+            lastName.Clear();
+            lastName.SendKeys("Polanska");
+
+            var dateOfBirth = driver.FindElement(By.Id("dataU"));
+
+            dateOfBirth.Clear();
+            dateOfBirth.SendKeys("02-11-1955");
+
+            var doctorAgreement = driver.FindElement(By.Id("lekarz"));
+
+            doctorAgreement.Click();
+
+
+            var button = driver.FindElement(By.XPath("/html/body/div/div/div/div/form/div[6]/div/button"));
+            button.Click();
+
+            driver.SwitchTo().Alert().Accept();
+            driver.SwitchTo().Alert().Accept();
+
+            var info = driver.FindElement(By.Id("returnSt"));
+
+            Assert.IsTrue(info.Text.Contains("Senior"));
+            Assert.Pass();
+        }
+
+        [Test]
+        public void CheckAddToJuniorToMinimumAge()
+        {
+            var firstName = driver.FindElement(By.Id("inputEmail3"));
+
+            firstName.Clear();
+            firstName.SendKeys("Milena");
+
+            var lastName = driver.FindElement(By.Id("inputPassword3"));
+
+            lastName.Clear();
+            lastName.SendKeys("Polanska");
+
+            var dateOfBirth = driver.FindElement(By.Id("dataU"));
+
+            dateOfBirth.Clear();
+            dateOfBirth.SendKeys("02-11-2006");
+
+            var doctorAgreement = driver.FindElement(By.Id("lekarz"));
+
+            doctorAgreement.Click();
+
+            var parentAgreement = driver.FindElement(By.Id("rodzice"));
+
+            parentAgreement.Click();
+
+
+            var button = driver.FindElement(By.XPath("/html/body/div/div/div/div/form/div[6]/div/button"));
+            button.Click();
+
+            driver.SwitchTo().Alert().Accept();
+            driver.SwitchTo().Alert().Accept();
+
+            var info = driver.FindElement(By.Id("returnSt"));
+
+            Assert.IsTrue(info.Text.Contains("Junior"));
+        
+        }
+  
+
+        [Test]
+        public void CheckAddToJuniorWihtoutParrentAgreement()
+        {
+            var firstName = driver.FindElement(By.Id("inputEmail3"));
+
+            firstName.Clear();
+            firstName.SendKeys("Milena");
+
+            var lastName = driver.FindElement(By.Id("inputPassword3"));
+
+            lastName.Clear();
+            lastName.SendKeys("Polanska");
+
+            var dateOfBirth = driver.FindElement(By.Id("dataU"));
+
+            dateOfBirth.Clear();
+            dateOfBirth.SendKeys("02-11-2006");
+
+            var doctorAgreement = driver.FindElement(By.Id("lekarz"));
+
+            doctorAgreement.Click();
+
+          
+
+
+            var button = driver.FindElement(By.XPath("/html/body/div/div/div/div/form/div[6]/div/button"));
+            button.Click();
+
+            driver.SwitchTo().Alert().Accept();
+            driver.SwitchTo().Alert().Accept();
+
+            var info = driver.FindElement(By.Id("returnSt"));
+
+            Assert.IsTrue(info.Text.Contains("Blad danych"));
+
+        }
+
+        [Test]
+        public void CheckAddToNotQualify()
+        {
+            var firstName = driver.FindElement(By.Id("inputEmail3"));
+
+            firstName.Clear();
+            firstName.SendKeys("Milena");
+
+            var lastName = driver.FindElement(By.Id("inputPassword3"));
+
+            lastName.Clear();
+            lastName.SendKeys("Polanska");
+
+            var dateOfBirth = driver.FindElement(By.Id("dataU"));
+
+            dateOfBirth.Clear();
+            dateOfBirth.SendKeys("02-11-2012")
+
+            var button = driver.FindElement(By.XPath("/html/body/div/div/div/div/form/div[6]/div/button"));
+            button.Click();
+
+            driver.SwitchTo().Alert().Accept();
+            driver.SwitchTo().Alert().Accept();
+
+            var info = driver.FindElement(By.Id("returnSt"));
+
+            Assert.IsTrue(info.Text.Contains("Brak kwalifikacji"));
+        }
+ 
+
+        [Test]
+        public void CheckAddWithoutFirstName()
+        {
+            
+
+            var lastName = driver.FindElement(By.Id("inputPassword3"));
+
+            lastName.Clear();
+            lastName.SendKeys("Polanska");
+
+            var dateOfBirth = driver.FindElement(By.Id("dataU"));
+
+            dateOfBirth.Clear();
+            dateOfBirth.SendKeys("02-11-2012");
+
+
+
+
+
+            var button = driver.FindElement(By.XPath("/html/body/div/div/div/div/form/div[6]/div/button"));
+            button.Click();
+            var info = driver.SwitchTo().Alert().Text;
+
+            Assert.IsTrue(info.Contains("First name must be filled out"));
+        }
+        [TearDown]
+        public void CloseWindow()
+        {
+            driver.Close();
+        }
+    }
+}
